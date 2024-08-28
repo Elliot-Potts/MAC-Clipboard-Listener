@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 
 namespace MACAddressMonitor
@@ -25,6 +26,8 @@ namespace MACAddressMonitor
         private ClipboardMonitor clipboardMonitor;
         private MacFormat selectedFormat = MacFormat.CiscoNotation;
         private bool ignoringNextClipboardUpdate = false;
+        private HttpClient httpClient;
+
 
         private enum MacFormat
         {
@@ -38,6 +41,7 @@ namespace MACAddressMonitor
             InitializeComponent();
             clipboardMonitor = new ClipboardMonitor();
             clipboardMonitor.ClipboardUpdated += OnClipboardUpdated;
+            httpClient = new HttpClient();
         }
 
         private void InitializeComponent()
@@ -75,6 +79,7 @@ namespace MACAddressMonitor
             {
                 trayIcon.Dispose();
                 clipboardMonitor.Dispose();
+                httpClient.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -100,14 +105,17 @@ namespace MACAddressMonitor
             try
             {
                 string clipboardText = await Task.Run(() => GetClipboardText());
+
                 if (IsMACAddress(clipboardText))
                 {
                     string formattedMac = ConvertMacFormat(clipboardText, selectedFormat);
+                    string vendor = await LookupVendorAsync(formattedMac);
+
                     if (formattedMac != clipboardText)
                     {
                         ignoringNextClipboardUpdate = true;
                         await Task.Run(() => SetClipboardText(formattedMac));
-                        ShowNotification("MAC Address Formatted", formattedMac);
+                        ShowNotification("MAC Address Formatted", $"{formattedMac}\nVendor: {vendor}");
                     }
                 }
             }
@@ -183,6 +191,32 @@ namespace MACAddressMonitor
                     return Regex.Replace(cleanMac, "(.{2})(.{2})(.{2})(.{2})(.{2})(.{2})", "$1-$2-$3-$4-$5-$6");
                 default:
                     return mac;
+            }
+        }
+
+        private async Task<string> LookupVendorAsync(string mac)
+        {
+            try
+            {
+                string url = $"https://api.macvendors.com/{Uri.EscapeDataString(mac)}";
+                HttpResponseMessage response = await httpClient.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadAsStringAsync();
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return "Not Found";
+                }
+                else
+                {
+                    return $"Error: {response.StatusCode}";
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"Lookup Failed: {ex.Message}";
             }
         }
     }
