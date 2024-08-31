@@ -65,7 +65,6 @@ namespace MACAddressMonitor
             formatMenu.DropDownItems.Add(hyphenSeparatedItem);
 
             trayMenu.Items.Add(formatMenu);
-            trayMenu.Items.Add("Show Notification", null, OnShowNotification);
             trayMenu.Items.Add("-"); // Separator
             trayMenu.Items.Add("Exit", null, OnExit);
 
@@ -81,6 +80,9 @@ namespace MACAddressMonitor
 
             // Set initial check mark
             UpdateFormatMenuCheckMarks();
+
+            // Show initial listening message
+            ShowNotification("MAC Clip Listener", "The application has started and is listening for MAC addresses.");
         }
 
         private Icon LoadIconFromResources(string resourceName)
@@ -134,11 +136,6 @@ namespace MACAddressMonitor
         private void OnExit(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void OnShowNotification(object sender, EventArgs e)
-        {
-            ShowNotification("MAC Address Monitor", "This is a test notification.");
         }
 
         private async void OnClipboardUpdated()
