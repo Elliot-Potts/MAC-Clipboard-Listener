@@ -1,4 +1,4 @@
-# MAC-Monitor
+# MAC-Clipboard-Listener
 
 A very simple C# application to automatically re-format copied MAC addresses and perform vendor/OUI lookups. 
 
