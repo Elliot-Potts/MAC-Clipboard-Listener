@@ -32,6 +32,9 @@ namespace MACAddressMonitor
         private HttpClient httpClient;
         private Icon customIcon;
 
+        private ToolStripMenuItem ciscoNotationItem;
+        private ToolStripMenuItem colonSeparatedItem;
+        private ToolStripMenuItem hyphenSeparatedItem;
 
         private enum MacFormat
         {
@@ -53,9 +56,13 @@ namespace MACAddressMonitor
             trayMenu = new ContextMenuStrip();
 
             ToolStripMenuItem formatMenu = new ToolStripMenuItem("Select MAC Format");
-            formatMenu.DropDownItems.Add("Cisco Notation", null, (s, e) => SetMacFormat(MacFormat.CiscoNotation));
-            formatMenu.DropDownItems.Add("Colon Separated", null, (s, e) => SetMacFormat(MacFormat.ColonSeparated));
-            formatMenu.DropDownItems.Add("Hyphen Separated", null, (s, e) => SetMacFormat(MacFormat.HyphenSeparated));
+            ciscoNotationItem = new ToolStripMenuItem("Cisco Notation", null, (s, e) => SetMacFormat(MacFormat.CiscoNotation));
+            colonSeparatedItem = new ToolStripMenuItem("Colon Separated", null, (s, e) => SetMacFormat(MacFormat.ColonSeparated));
+            hyphenSeparatedItem = new ToolStripMenuItem("Hyphen Separated", null, (s, e) => SetMacFormat(MacFormat.HyphenSeparated));
+
+            formatMenu.DropDownItems.Add(ciscoNotationItem);
+            formatMenu.DropDownItems.Add(colonSeparatedItem);
+            formatMenu.DropDownItems.Add(hyphenSeparatedItem);
 
             trayMenu.Items.Add(formatMenu);
             trayMenu.Items.Add("Show Notification", null, OnShowNotification);
@@ -71,6 +78,9 @@ namespace MACAddressMonitor
                 Text = "MAC Address Monitor",
                 Visible = true
             };
+
+            // Set initial check mark
+            UpdateFormatMenuCheckMarks();
         }
 
         private Icon LoadIconFromResources(string resourceName)
@@ -99,7 +109,15 @@ namespace MACAddressMonitor
         private void SetMacFormat(MacFormat format)
         {
             selectedFormat = format;
+            UpdateFormatMenuCheckMarks();
             ShowNotification("MAC Format Updated", $"Selected format: {format}");
+        }
+
+        private void UpdateFormatMenuCheckMarks()
+        {
+            ciscoNotationItem.Checked = (selectedFormat == MacFormat.CiscoNotation);
+            colonSeparatedItem.Checked = (selectedFormat == MacFormat.ColonSeparated);
+            hyphenSeparatedItem.Checked = (selectedFormat == MacFormat.HyphenSeparated);
         }
 
         protected override void Dispose(bool disposing)
