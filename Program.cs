@@ -58,6 +58,9 @@ namespace MACAddressMonitor
             trayMenu.Items.Add("-"); // Separator
             trayMenu.Items.Add("Exit", null, OnExit);
 
+
+            // System.Drawing.Icon customIcon = new System.Drawing.Icon(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "custom_icon.ico"));
+
             trayIcon = new NotifyIcon()
             {
                 Icon = System.Drawing.SystemIcons.Application,
@@ -174,7 +177,7 @@ namespace MACAddressMonitor
         private bool IsMACAddress(string text)
         {
             string pattern = @"^(?i)(([0-9A-F]{2}[:-]){5}([0-9A-F]{2})|([0-9A-F]{4}\.){2}([0-9A-F]{4}))$";
-            return Regex.IsMatch(text, pattern);
+            return Regex.IsMatch(text.Trim(), pattern);
         }
 
         private string ConvertMacFormat(string mac, MacFormat format)
