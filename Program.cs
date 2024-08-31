@@ -3,7 +3,10 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Reflection;
 using System.Net.Http;
+using System.Drawing;
+using System.IO;
 
 
 namespace MACAddressMonitor
@@ -27,6 +30,7 @@ namespace MACAddressMonitor
         private MacFormat selectedFormat = MacFormat.CiscoNotation;
         private bool ignoringNextClipboardUpdate = false;
         private HttpClient httpClient;
+        private Icon customIcon;
 
 
         private enum MacFormat
@@ -58,16 +62,38 @@ namespace MACAddressMonitor
             trayMenu.Items.Add("-"); // Separator
             trayMenu.Items.Add("Exit", null, OnExit);
 
-
-            // System.Drawing.Icon customIcon = new System.Drawing.Icon(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "custom_icon.ico"));
+            customIcon = LoadIconFromResources("MacClipListener.mac_monitor_icon.ico");
 
             trayIcon = new NotifyIcon()
             {
-                Icon = System.Drawing.SystemIcons.Application,
+                Icon = customIcon,
                 ContextMenuStrip = trayMenu,
                 Text = "MAC Address Monitor",
                 Visible = true
             };
+        }
+
+        private Icon LoadIconFromResources(string resourceName)
+        {
+            // Load Icon from embedded resource
+            try
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    if (stream != null)
+                    {
+                        return new Icon(stream);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading icon: {ex.Message}", "Icon Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            // Fallback to default icon on failure
+            return SystemIcons.Application;
         }
 
         private void SetMacFormat(MacFormat format)
@@ -171,7 +197,7 @@ namespace MACAddressMonitor
 
         private void ShowNotification(string title, string message)
         {
-            trayIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.Info);
+            trayIcon.ShowBalloonTip(3000, title, message, ToolTipIcon.None);
         }
 
         private bool IsMACAddress(string text)
