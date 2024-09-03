@@ -7,10 +7,62 @@ using System.Reflection;
 using System.Net.Http;
 using System.Drawing;
 using System.IO;
-
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MACAddressMonitor
 {
+    class MACAddress
+    {
+        private static readonly HttpClient httpClient = new HttpClient();
+
+        public string MacAddress { get; private set; }
+        public string Vendor { get; private set; }
+        public string AssociatedIPAddress { get; private set; }
+        public string AssociatedSwitchHostname { get; private set; }
+        public string AssociatedSwitchIP { get; private set; }
+        public string AssociatedSwitchport { get; private set; }
+
+        public MACAddress(string macAddress)
+        {
+            MacAddress = macAddress;
+            //GetVendorAsync().Wait(); // Note: Blocking call in constructor, bad ?
+            GetNetdiscoDetails();
+        }
+
+        private async Task GetVendorAsync()
+        {
+            try
+            {
+                string url = $"https://api.macvendors.com/{Uri.EscapeDataString(MacAddress)}";
+                HttpResponseMessage response = await httpClient.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Vendor = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    Vendor = $"Error Code: {response.StatusCode}";
+                }
+            }
+            catch (Exception ex)
+            {
+                Vendor = $"Lookup Exception: {ex.Message}";
+            }
+        }
+
+        private void GetNetdiscoDetails()
+        {
+            // TODO: Implement Netdisco API call to populate Associated values
+            // This is a placeholder for future implementation
+            AssociatedIPAddress = "Not implemented";
+            AssociatedSwitchHostname = "Not implemented";
+            AssociatedSwitchIP = "Not implemented";
+            AssociatedSwitchport = "Not implemented";
+        }
+    }
+
     static class Program
     {
         [STAThread]
@@ -29,8 +81,9 @@ namespace MACAddressMonitor
         private ClipboardMonitor clipboardMonitor;
         private MacFormat selectedFormat = MacFormat.CiscoNotation;
         private bool ignoringNextClipboardUpdate = false;
-        private HttpClient httpClient;
         private Icon customIcon;
+
+        List<MACAddress> macAddresses = new List<MACAddress>();
 
         private ToolStripMenuItem ciscoNotationItem;
         private ToolStripMenuItem colonSeparatedItem;
@@ -48,7 +101,6 @@ namespace MACAddressMonitor
             InitializeComponent();
             clipboardMonitor = new ClipboardMonitor();
             clipboardMonitor.ClipboardUpdated += OnClipboardUpdated;
-            httpClient = new HttpClient();
         }
 
         private void InitializeComponent()
@@ -128,7 +180,6 @@ namespace MACAddressMonitor
             {
                 trayIcon.Dispose();
                 clipboardMonitor.Dispose();
-                httpClient.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -150,23 +201,63 @@ namespace MACAddressMonitor
             {
                 string clipboardText = await Task.Run(() => GetClipboardText());
 
-                if (IsMACAddress(clipboardText))
-                {
-                    string formattedMac = ConvertMacFormat(clipboardText, selectedFormat);
-                    string vendor = await LookupVendorAsync(formattedMac);
+                Console.WriteLine("Clipboard updated: ");
 
-                    if (formattedMac != clipboardText)
+                string[] splitLines = clipboardText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string line in splitLines)
+                {
+                    Console.WriteLine(line);
+                    if (IsMACAddress(line.Trim()))
                     {
-                        ignoringNextClipboardUpdate = true;
-                        await Task.Run(() => SetClipboardText(formattedMac));
-                        ShowNotification("MAC Address Formatted", $"{formattedMac}\nVendor: {vendor}");
+                        string formattedMac = ConvertMacFormat(line.Trim(), selectedFormat);
+                        var macAddressObject = new MACAddress(formattedMac);
+                        macAddresses.Add(macAddressObject);
                     }
                 }
+
+                Console.WriteLine("DBG - Passed forEach");
+
+                if (macAddresses.Any())
+                {
+                    Console.WriteLine("DBG - macAddresses.Any() passed");
+                    await UpdateClipboardWithFormattedMacs(macAddresses);
+                    ShowNotificationForNewMacs(macAddresses);
+                }
+
+                //if (IsMACAddress(clipboardText))
+                //{
+                //    string formattedMac = ConvertMacFormat(clipboardText, selectedFormat);
+                //    //string vendor = await LookupVendorAsync(formattedMac);
+
+                //    if (formattedMac != clipboardText)
+                //    {
+                //        ignoringNextClipboardUpdate = true;
+                //        await Task.Run(() => SetClipboardText(formattedMac));
+                //        ShowNotification("MAC Address Formatted", $"{formattedMac}\nVendor: Migrated");
+                //    }
+                //}
             }
             catch (Exception ex)
             {
                 ShowNotification("Error", $"An error occurred: {ex.Message}");
             }
+        }
+
+        private async Task UpdateClipboardWithFormattedMacs(List<MACAddress> macAddresses)
+        {
+            string formattedText = string.Join(Environment.NewLine, macAddresses.Select(m => m.MacAddress));
+            ignoringNextClipboardUpdate = true;
+            await Task.Run(() => SetClipboardText(formattedText));
+        }
+
+        private void ShowNotificationForNewMacs(List<MACAddress> newMacAddresses)
+        {
+            string notificationText = string.Join(Environment.NewLine,
+                newMacAddresses.Select(m => $"{m.MacAddress} - {m.Vendor}"));
+
+            ShowNotification("MAC Addresses Processed",
+                $"Processed {newMacAddresses.Count} MAC address(es):{Environment.NewLine}{notificationText}");
         }
 
         private string GetClipboardText()
@@ -238,31 +329,32 @@ namespace MACAddressMonitor
             }
         }
 
-        private async Task<string> LookupVendorAsync(string mac)
-        {
-            try
-            {
-                string url = $"https://api.macvendors.com/{Uri.EscapeDataString(mac)}";
-                HttpResponseMessage response = await httpClient.GetAsync(url);
+        //private async Task<string> LookupVendorAsync(string mac)
+        //{
+        //    // NOW DEFUNCT
+        //    try
+        //    {
+        //        string url = $"https://api.macvendors.com/{Uri.EscapeDataString(mac)}";
+        //        HttpResponseMessage response = await httpClient.GetAsync(url);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    return "Not Found";
-                }
-                else
-                {
-                    return $"Error: {response.StatusCode}";
-                }
-            }
-            catch (Exception ex)
-            {
-                return $"Lookup Failed: {ex.Message}";
-            }
-        }
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            return await response.Content.ReadAsStringAsync();
+        //        }
+        //        else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        //        {
+        //            return "Not Found";
+        //        }
+        //        else
+        //        {
+        //            return $"Error: {response.StatusCode}";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return $"Lookup Failed: {ex.Message}";
+        //    }
+        //}
     }
 
     public class ClipboardMonitor : NativeWindow, IDisposable
