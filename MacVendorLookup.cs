@@ -58,9 +58,7 @@ namespace MACAddressMonitor
 
         public string LookupVendor(string macAddress)
         {
-            Console.WriteLine($"Passed = {macAddress}");
             string normalizedMac = NormalizeMacPrefix(macAddress);
-            Console.WriteLine($"Normalized = {normalizedMac}");
 
             // Try 24-bit (6 characters) prefix first, then extended OUIs (28-bit, 36-bit)
             if (vendorDictionary.TryGetValue(normalizedMac.Substring(0, 6), out var vendor24))

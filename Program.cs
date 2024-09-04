@@ -205,8 +205,6 @@ namespace MACAddressMonitor
             {
                 string clipboardText = await Task.Run(() => GetClipboardText());
 
-                Console.WriteLine("Clipboard updated: ");
-
                 string[] splitLines = clipboardText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bool clipboardChanged = false;
 
@@ -217,7 +215,6 @@ namespace MACAddressMonitor
 
                 foreach (string line in splitLines)
                 {
-                    Console.WriteLine(line);
                     if (IsMACAddress(line.Trim()))
                     {
                         string formattedMac = ConvertMacFormat(line.Trim(), selectedFormat);
