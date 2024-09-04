@@ -62,6 +62,7 @@ namespace MACAddressMonitor
             string normalizedMac = NormalizeMacPrefix(macAddress);
             Console.WriteLine($"Normalized = {normalizedMac}");
 
+            // TODO - 28/36 bit conditionals will not work due to 12 char length ?
             // Try 36-bit (9 characters) prefix
             if (normalizedMac.Length >= 9 && vendorDictionary.TryGetValue(normalizedMac.Substring(0, 9), out var vendor36))
                 return vendor36;
