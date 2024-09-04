@@ -193,6 +193,8 @@ namespace MACAddressMonitor
             Application.Exit();
         }
 
+        List<MACAddress> macAddresses = new List<MACAddress>();
+
         private async void OnClipboardUpdated()
         {
             if (ignoringNextClipboardUpdate)
@@ -207,8 +209,6 @@ namespace MACAddressMonitor
 
                 string[] splitLines = clipboardText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bool clipboardChanged = false;
-
-                List<MACAddress> macAddresses = new List<MACAddress>();
 
                 // Empty the existing MAC addresses list
                 macAddresses.Clear();
@@ -233,8 +233,8 @@ namespace MACAddressMonitor
                     ShowNotificationForMacs(macAddresses);
                 }
 
-                // Clear macAddresses yet again
-                macAddresses.Clear();
+                // Clear macAddresses yet again - now removed for dialog/form
+                //macAddresses.Clear();
             }
             catch (Exception ex)
             {
@@ -254,8 +254,28 @@ namespace MACAddressMonitor
             string notificationText = string.Join(Environment.NewLine,
                 newMacAddresses.Select(m => $"{m.MacAddress} - {m.Vendor}"));
 
-            ShowNotification("MAC Addresses Processed",
-                $"Processed {newMacAddresses.Count} MAC address(es):{Environment.NewLine}{notificationText}");
+            //ShowNotification("MAC Addresses Processed",
+            //    $"Processed {newMacAddresses.Count} MAC address(es):{Environment.NewLine}{notificationText}");
+
+            trayIcon.BalloonTipClicked += TrayIcon_BalloonTipClicked;
+            trayIcon.ShowBalloonTip(3000, "MAC Addresses Processed",
+                $"Processed {newMacAddresses.Count} MAC address(es). Click for details.", ToolTipIcon.Info);
+        }
+
+        private void TrayIcon_BalloonTipClicked(object sender, EventArgs e)
+        {
+            ShowMacDetailsForm();
+            trayIcon.BalloonTipClicked -= TrayIcon_BalloonTipClicked;
+        }
+
+        private void ShowMacDetailsForm()
+        {
+            if (macAddresses.Any())
+            {
+                var detailsForm = new MacDetailsForm();
+                detailsForm.PopulateList(macAddresses);
+                detailsForm.Show();
+            }
         }
 
         private string GetClipboardText()
