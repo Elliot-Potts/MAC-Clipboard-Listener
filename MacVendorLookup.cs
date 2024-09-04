@@ -62,18 +62,18 @@ namespace MACAddressMonitor
             string normalizedMac = NormalizeMacPrefix(macAddress);
             Console.WriteLine($"Normalized = {normalizedMac}");
 
-            // TODO - 28/36 bit conditionals will not work due to 12 char length ?
-            // Try 36-bit (9 characters) prefix
-            if (normalizedMac.Length >= 9 && vendorDictionary.TryGetValue(normalizedMac.Substring(0, 9), out var vendor36))
-                return vendor36;
-
-            // Try 28-bit (7 characters) prefix
-            if (normalizedMac.Length >= 7 && vendorDictionary.TryGetValue(normalizedMac.Substring(0, 7), out var vendor28))
-                return vendor28;
-
             // Try 24-bit (6 characters) prefix
             if (normalizedMac.Length >= 6 && vendorDictionary.TryGetValue(normalizedMac.Substring(0, 6), out var vendor24))
                 return vendor24;
+
+            // TODO -- improve support for extended OUIs (28/36 bit), current approach only focusses on 24 bit
+            // Try 36-bit (9 characters) prefix
+            //if (normalizedMac.Length >= 9 && vendorDictionary.TryGetValue(normalizedMac.Substring(0, 9), out var vendor36))
+            //    return vendor36;
+
+            // Try 28-bit (7 characters) prefix
+            //if (normalizedMac.Length >= 7 && vendorDictionary.TryGetValue(normalizedMac.Substring(0, 7), out var vendor28))
+            //    return vendor28;
 
             //Console.WriteLine($"length of Normalized MAC: {normalizedMac.Length}");
             //Console.WriteLine($"First 6 of Normalized MAC: {normalizedMac.Substring(0, 6)}");
