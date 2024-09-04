@@ -12,9 +12,22 @@ using System.Linq;
 
 namespace MACAddressMonitor
 {
-    class MACAddress
+    public class MACAddress
     {
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static readonly MacVendorLookup vendorLookup;
+
+        static MACAddress()
+        {
+            try
+            {
+                vendorLookup = new MacVendorLookup();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing MacVendorLookup: {ex.Message}");
+                vendorLookup = null;
+            }
+        }
 
         public string MacAddress { get; private set; }
         public string Vendor { get; private set; }
@@ -26,36 +39,29 @@ namespace MACAddressMonitor
         public MACAddress(string macAddress)
         {
             MacAddress = macAddress;
-            GetVendorAsync().Wait(); // Note: Blocking call in constructor, bad ?
+            Vendor = LookupVendor(macAddress);
             GetNetdiscoDetails();
         }
 
-        private async Task GetVendorAsync()
+        private string LookupVendor(string macAddress)
         {
-            try
+            if (vendorLookup != null)
             {
-                string url = $"https://api.macvendors.com/{Uri.EscapeDataString(MacAddress)}";
-                HttpResponseMessage response = await httpClient.GetAsync(url);
-
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    Vendor = await response.Content.ReadAsStringAsync();
+                    return vendorLookup.LookupVendor(macAddress);
                 }
-                else
+                catch (Exception ex)
                 {
-                    Vendor = $"Error Code: {response.StatusCode}";
+                    Console.WriteLine($"Error looking up vendor: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Vendor = $"Lookup Exception: {ex.Message}";
-            }
+            return "Unknown";
         }
 
         private void GetNetdiscoDetails()
         {
             // TODO: Implement Netdisco API call to populate Associated values
-            // This is a placeholder for future implementation
             NdAssociatedIPAddress = "Not implemented";
             NdAssociatedSwitchHostname = "Not implemented";
             NdAssociatedSwitchIP = "Not implemented";
@@ -224,8 +230,6 @@ namespace MACAddressMonitor
                     }
                 }
 
-                Console.WriteLine("DBG - Passed forEach");
-
                 if (macAddresses.Any() && clipboardChanged)
                 {
                     await UpdateClipboardWithFormattedMacs(macAddresses);
@@ -311,6 +315,7 @@ namespace MACAddressMonitor
 
         private string ConvertMacFormat(string mac, MacFormat format)
         {
+            // Reformat the MAC address based on toolmenu selection
             string cleanMac = Regex.Replace(mac.ToUpper(), "[.:-]", "");
 
             switch (format)
@@ -325,33 +330,6 @@ namespace MACAddressMonitor
                     return mac;
             }
         }
-
-        //private async Task<string> LookupVendorAsync(string mac)
-        //{
-        //    // NOW DEFUNCT
-        //    try
-        //    {
-        //        string url = $"https://api.macvendors.com/{Uri.EscapeDataString(mac)}";
-        //        HttpResponseMessage response = await httpClient.GetAsync(url);
-
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            return await response.Content.ReadAsStringAsync();
-        //        }
-        //        else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-        //        {
-        //            return "Not Found";
-        //        }
-        //        else
-        //        {
-        //            return $"Error: {response.StatusCode}";
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return $"Lookup Failed: {ex.Message}";
-        //    }
-        //}
     }
 
     public class ClipboardMonitor : NativeWindow, IDisposable
