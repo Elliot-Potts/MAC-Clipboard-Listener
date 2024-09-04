@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace MACAddressMonitor
 {
+    // TODO - add sorting on Vendor
+    // TODO - add ability to copy fields
+    // TODO - add Netdisco attribute fields
     public partial class MacDetailsForm : Form
     {
         public MacDetailsForm()
         {
             InitializeComponent();
+            SetFormIcon();
         }
 
         private void InitializeComponent()
@@ -66,6 +73,26 @@ namespace MACAddressMonitor
             {
                 var item = new ListViewItem(new[] { mac.MacAddress, mac.Vendor });
                 listViewMacs.Items.Add(item);
+            }
+        }
+
+        private void SetFormIcon()
+        {
+            try
+            {
+                string resourceName = "MacClipListener.mac_monitor_icon.ico";
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    if (stream != null)
+                    {
+                        this.Icon = new Icon(stream);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading icon: {ex.Message}", "Icon Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
