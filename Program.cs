@@ -18,15 +18,15 @@ namespace MACAddressMonitor
 
         public string MacAddress { get; private set; }
         public string Vendor { get; private set; }
-        public string AssociatedIPAddress { get; private set; }
-        public string AssociatedSwitchHostname { get; private set; }
-        public string AssociatedSwitchIP { get; private set; }
-        public string AssociatedSwitchport { get; private set; }
+        public string NdAssociatedIPAddress { get; private set; }
+        public string NdAssociatedSwitchHostname { get; private set; }
+        public string NdAssociatedSwitchIP { get; private set; }
+        public string NdAssociatedSwitchport { get; private set; }
 
         public MACAddress(string macAddress)
         {
             MacAddress = macAddress;
-            //GetVendorAsync().Wait(); // Note: Blocking call in constructor, bad ?
+            GetVendorAsync().Wait(); // Note: Blocking call in constructor, bad ?
             GetNetdiscoDetails();
         }
 
@@ -56,10 +56,10 @@ namespace MACAddressMonitor
         {
             // TODO: Implement Netdisco API call to populate Associated values
             // This is a placeholder for future implementation
-            AssociatedIPAddress = "Not implemented";
-            AssociatedSwitchHostname = "Not implemented";
-            AssociatedSwitchIP = "Not implemented";
-            AssociatedSwitchport = "Not implemented";
+            NdAssociatedIPAddress = "Not implemented";
+            NdAssociatedSwitchHostname = "Not implemented";
+            NdAssociatedSwitchIP = "Not implemented";
+            NdAssociatedSwitchport = "Not implemented";
         }
     }
 
@@ -82,8 +82,6 @@ namespace MACAddressMonitor
         private MacFormat selectedFormat = MacFormat.CiscoNotation;
         private bool ignoringNextClipboardUpdate = false;
         private Icon customIcon;
-
-        List<MACAddress> macAddresses = new List<MACAddress>();
 
         private ToolStripMenuItem ciscoNotationItem;
         private ToolStripMenuItem colonSeparatedItem;
@@ -204,6 +202,12 @@ namespace MACAddressMonitor
                 Console.WriteLine("Clipboard updated: ");
 
                 string[] splitLines = clipboardText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                bool clipboardChanged = false;
+
+                List<MACAddress> macAddresses = new List<MACAddress>();
+
+                // Empty the existing MAC addresses list
+                macAddresses.Clear();
 
                 foreach (string line in splitLines)
                 {
@@ -211,6 +215,10 @@ namespace MACAddressMonitor
                     if (IsMACAddress(line.Trim()))
                     {
                         string formattedMac = ConvertMacFormat(line.Trim(), selectedFormat);
+                        if (formattedMac != line.Trim())
+                        {
+                            clipboardChanged = true;
+                        }
                         var macAddressObject = new MACAddress(formattedMac);
                         macAddresses.Add(macAddressObject);
                     }
@@ -218,25 +226,14 @@ namespace MACAddressMonitor
 
                 Console.WriteLine("DBG - Passed forEach");
 
-                if (macAddresses.Any())
+                if (macAddresses.Any() && clipboardChanged)
                 {
-                    Console.WriteLine("DBG - macAddresses.Any() passed");
                     await UpdateClipboardWithFormattedMacs(macAddresses);
-                    ShowNotificationForNewMacs(macAddresses);
+                    ShowNotificationForMacs(macAddresses);
                 }
 
-                //if (IsMACAddress(clipboardText))
-                //{
-                //    string formattedMac = ConvertMacFormat(clipboardText, selectedFormat);
-                //    //string vendor = await LookupVendorAsync(formattedMac);
-
-                //    if (formattedMac != clipboardText)
-                //    {
-                //        ignoringNextClipboardUpdate = true;
-                //        await Task.Run(() => SetClipboardText(formattedMac));
-                //        ShowNotification("MAC Address Formatted", $"{formattedMac}\nVendor: Migrated");
-                //    }
-                //}
+                // Clear macAddresses yet again
+                macAddresses.Clear();
             }
             catch (Exception ex)
             {
@@ -251,7 +248,7 @@ namespace MACAddressMonitor
             await Task.Run(() => SetClipboardText(formattedText));
         }
 
-        private void ShowNotificationForNewMacs(List<MACAddress> newMacAddresses)
+        private void ShowNotificationForMacs(List<MACAddress> newMacAddresses)
         {
             string notificationText = string.Join(Environment.NewLine,
                 newMacAddresses.Select(m => $"{m.MacAddress} - {m.Vendor}"));
@@ -309,7 +306,7 @@ namespace MACAddressMonitor
         private bool IsMACAddress(string text)
         {
             string pattern = @"^(?i)(([0-9A-F]{2}[:-]){5}([0-9A-F]{2})|([0-9A-F]{4}\.){2}([0-9A-F]{4}))$";
-            return Regex.IsMatch(text.Trim(), pattern);
+            return Regex.IsMatch(text, pattern);
         }
 
         private string ConvertMacFormat(string mac, MacFormat format)
