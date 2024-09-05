@@ -62,10 +62,10 @@ namespace MACAddressMonitor
         private void GetNetdiscoDetails()
         {
             // TODO: Implement Netdisco API call to populate Associated values
-            NdAssociatedIPAddress = "Not implemented";
-            NdAssociatedSwitchHostname = "Not implemented";
-            NdAssociatedSwitchIP = "Not implemented";
-            NdAssociatedSwitchport = "Not implemented";
+            NdAssociatedIPAddress = "172.16.43.234";
+            NdAssociatedSwitchHostname = "C2962X-TB1-NETLAB-248";
+            NdAssociatedSwitchIP = "192.168.92.248";
+            NdAssociatedSwitchport = "Gi1/0/23";
         }
     }
 
