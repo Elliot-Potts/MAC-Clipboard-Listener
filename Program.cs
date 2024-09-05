@@ -134,11 +134,22 @@ namespace MACAddressMonitor
                 Visible = true
             };
 
+            // Click event for opening MAC details
+            trayIcon.Click += TrayIcon_Click;
+
             // Set initial check mark
             UpdateFormatMenuCheckMarks();
 
             // Show initial listening message
             ShowNotification("MAC Clip Listener", "The application has started and is listening for MAC addresses.");
+        }
+
+        private void TrayIcon_Click(object sender, EventArgs e)
+        {
+            if (((MouseEventArgs)e).Button == MouseButtons.Left)
+            {
+                ShowMacDetailsForm();
+            }
         }
 
         private Icon LoadIconFromResources(string resourceName)
@@ -275,6 +286,10 @@ namespace MACAddressMonitor
                 var detailsForm = new MacDetailsForm();
                 detailsForm.PopulateList(macAddresses);
                 detailsForm.Show();
+            }
+            else
+            {
+                MessageBox.Show("No MAC addresses have been processed yet.", "MAC Address Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

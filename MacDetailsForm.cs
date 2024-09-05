@@ -7,8 +7,7 @@ using System.Windows.Forms;
 
 namespace MACAddressMonitor
 {
-    // TODO - add sorting on Vendor
-    // TODO - add ability to copy fields
+    // TODO - add sorting on fields
     public partial class MacDetailsForm : Form
     {
         private ContextMenuStrip cellContextMenu;
