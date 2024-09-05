@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms.VisualStyles;
 
 namespace MACAddressMonitor
 {
@@ -45,6 +46,7 @@ namespace MACAddressMonitor
 
         private string LookupVendor(string macAddress)
         {
+            Console.WriteLine($"Performing vendor lookup for: {macAddress}");
             if (vendorLookup != null)
             {
                 try
@@ -61,11 +63,26 @@ namespace MACAddressMonitor
 
         private void GetNetdiscoDetails()
         {
+            // API key stored in environment variable 'MACL_NDKEY'
             // TODO: Implement Netdisco API call to populate Associated values
-            NdAssociatedIPAddress = "172.16.43.234";
-            NdAssociatedSwitchHostname = "C2962X-TB1-NETLAB-248";
-            NdAssociatedSwitchIP = "192.168.92.248";
-            NdAssociatedSwitchport = "Gi1/0/23";
+
+            Console.WriteLine("Checking environment for 'MACL_NDKEY'");
+
+            //string getNdAPIKey = Environment.GetEnvironmentVariable("MACL_NDKEY");
+
+            //if (getNdAPIKey != null)
+            //{
+            //    Console.WriteLine($"Key found with value: {getNdAPIKey}");
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Please make sure the environment variable 'MACL_NDKEY' is set.", "NetDisco API key not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+
+            NdAssociatedIPAddress = "Not implemented";
+            NdAssociatedSwitchHostname = "Not implemented";
+            NdAssociatedSwitchIP = "Not implemented";
+            NdAssociatedSwitchport = "Not implemented";
         }
     }
 
@@ -148,6 +165,7 @@ namespace MACAddressMonitor
         {
             if (((MouseEventArgs)e).Button == MouseButtons.Left)
             {
+                //Console.WriteLine($"DBG Length Count of MACOBJ array: {macAddresses.Count}");
                 ShowMacDetailsForm();
             }
         }
@@ -208,6 +226,7 @@ namespace MACAddressMonitor
 
         private async void OnClipboardUpdated()
         {
+            Console.WriteLine("[DBG] OnClipboardUpdated called");
             if (ignoringNextClipboardUpdate)
             {
                 ignoringNextClipboardUpdate = false;
