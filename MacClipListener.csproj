@@ -69,9 +69,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClipboardMonitor.cs" />
+    <Compile Include="MACAddress.cs" />
+    <Compile Include="MacAddressMonitorContext.cs" />
     <Compile Include="MacDetailsForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MacFormat.cs" />
     <Compile Include="MacVendorLookup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
