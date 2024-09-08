@@ -102,10 +102,13 @@ namespace MACAddressMonitor
             cellContextMenu = new ContextMenuStrip();
             ToolStripMenuItem copyRowItem = new ToolStripMenuItem("Copy Row");
             ToolStripMenuItem copyCellItem = new ToolStripMenuItem("Copy Cell");
+            ToolStripMenuItem exportRecordsItem = new ToolStripMenuItem("Export to CSV");
             copyRowItem.Click += CopyRowItem_Click;
             copyCellItem.Click += CopyMenuItem_Click;
+            exportRecordsItem.Click += ExportCSV_Click;
             cellContextMenu.Items.Add(copyRowItem);
             cellContextMenu.Items.Add(copyCellItem);
+            cellContextMenu.Items.Add(exportRecordsItem);
         }
 
         private void ListViewMacs_MouseClick(object sender, MouseEventArgs e)
@@ -148,6 +151,32 @@ namespace MACAddressMonitor
                 {
                     string cellValue = selectedItem.SubItems[columnIndex].Text;
                     Clipboard.SetText(cellValue);
+                }
+            }
+        }
+
+        private void ExportCSV_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "CSV files|*.csv";
+            saveFileDialog.Title = "Export MAC Address Data";
+            saveFileDialog.ShowDialog();
+            if (saveFileDialog.FileName != "")
+            {
+                using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
+                {
+                    sw.WriteLine("MAC Address,Vendor,Associated IP,Switch IP,Switch,Switch Port");
+                    foreach (ListViewItem item in listViewMacs.Items)
+                    {
+                        sw.WriteLine(string.Join(",", new string[] {
+                            item.SubItems[0].Text,
+                            item.SubItems[1].Text,
+                            item.SubItems[2].Text,
+                            item.SubItems[3].Text,
+                            item.SubItems[4].Text,
+                            item.SubItems[5].Text
+                        }));
+                    }
                 }
             }
         }

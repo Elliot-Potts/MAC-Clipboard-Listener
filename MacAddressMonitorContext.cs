@@ -140,7 +140,7 @@ namespace MACAddressMonitor
 
                 if (macAddresses.Any() && clipboardChanged)
                 {
-                    await UpdateClipboardWithFormattedMacs(macAddresses);
+                    UpdateClipboardWithFormattedMacs(macAddresses);
                     ShowNotificationForMacs(macAddresses);
                 }
 
@@ -153,7 +153,7 @@ namespace MACAddressMonitor
             }
         }
 
-        private async Task UpdateClipboardWithFormattedMacs(List<MACAddress> macAddresses)
+        private void UpdateClipboardWithFormattedMacs(List<MACAddress> macAddresses)
         {
             string formattedText = string.Join(Environment.NewLine, macAddresses.Select(m => m.MacAddress));
             ignoringNextClipboardUpdate = true;
