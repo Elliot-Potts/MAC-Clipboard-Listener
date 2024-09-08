@@ -23,36 +23,36 @@ namespace MACAddressMonitor
 
         private void InitializeComponent()
         {
-            this.listViewMacs = new System.Windows.Forms.ListView();
-            this.columnMac = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnVendor = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnAssociatedIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnSwitchIP = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnSwitch = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnSwitchPort = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.listViewMacs = new ListView();
+            this.columnMac = new ColumnHeader();
+            this.columnVendor = new ColumnHeader();
+            this.columnAssociatedIP = new ColumnHeader();
+            this.columnSwitchIP = new ColumnHeader();
+            this.columnSwitch = new ColumnHeader();
+            this.columnSwitchPort = new ColumnHeader();
             this.SuspendLayout();
             // 
             // listViewMacs
             // 
-            this.listViewMacs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.listViewMacs.Columns.AddRange(new ColumnHeader[] {
             this.columnMac,
             this.columnVendor,
             this.columnAssociatedIP,
             this.columnSwitchIP,
             this.columnSwitch,
             this.columnSwitchPort});
-            this.listViewMacs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listViewMacs.Dock = DockStyle.Fill;
             this.listViewMacs.FullRowSelect = true;
             this.listViewMacs.GridLines = true;
             this.listViewMacs.HideSelection = false;
-            this.listViewMacs.Location = new System.Drawing.Point(0, 0);
-            this.listViewMacs.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.listViewMacs.Location = new Point(0, 0);
+            this.listViewMacs.Margin = new Padding(4, 5, 4, 5);
             this.listViewMacs.Name = "listViewMacs";
-            this.listViewMacs.Size = new System.Drawing.Size(876, 402);
+            this.listViewMacs.Size = new Size(876, 402);
             this.listViewMacs.TabIndex = 0;
             this.listViewMacs.UseCompatibleStateImageBehavior = false;
-            this.listViewMacs.View = System.Windows.Forms.View.Details;
-            this.listViewMacs.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listViewMacs_MouseClick);
+            this.listViewMacs.View = View.Details;
+            this.listViewMacs.MouseClick += new MouseEventHandler(this.listViewMacs_MouseClick);
             // 
             // columnMac
             // 
@@ -86,11 +86,11 @@ namespace MACAddressMonitor
             // 
             // MacDetailsForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1100, 402);
+            this.AutoScaleDimensions = new SizeF(9F, 20F);
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.ClientSize = new Size(1100, 402);
             this.Controls.Add(this.listViewMacs);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Margin = new Padding(4, 5, 4, 5);
             this.Name = "MacDetailsForm";
             this.Text = "MAC Address Details";
             this.ResumeLayout(false);
