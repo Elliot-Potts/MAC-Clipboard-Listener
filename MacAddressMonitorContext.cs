@@ -68,7 +68,7 @@ namespace MACAddressMonitor
             ShowNotification("MAC Clip Listener", "The application has started and is listening for MAC addresses.");
         }
 
-        private void ShowNetdiscoConfigForm(object sender, EventArgs e)
+        private async void ShowNetdiscoConfigForm(object sender, EventArgs e)
         {
             var configForm = new NetdiscoConfigForm();
 
@@ -76,7 +76,7 @@ namespace MACAddressMonitor
             {
                 try
                 {
-                    NetdiscoConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
+                    await NetdiscoConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
                     ShowNotification("Netdisco Configuration", "Netdisco settings have been updated.");
                 }
                 catch (Exception ex)
