@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace MACAddressMonitor
 {
+    // TODO - API key generation should be performed each load
     internal class NetdiscoConfigManager
     {
         private const string API_KEY_SETTING = "NetdiscoApiKey";

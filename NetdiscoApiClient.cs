@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MACAddressMonitor
 {
+    // TODO - Implement /search/node API endpoint
     public class NetdiscoApiClient
     {
         private readonly HttpClient _httpClient;
@@ -29,7 +30,7 @@ namespace MACAddressMonitor
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/api/v1/object/mac/{macAddress}");
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/v1/search/node?q={macAddress}");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
 
