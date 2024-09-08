@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using MacClipListener.Properties;
 
 namespace MACAddressMonitor
 {
@@ -47,11 +48,9 @@ namespace MACAddressMonitor
             trayMenu.Items.Add("-"); // Separator
             trayMenu.Items.Add("Exit", null, OnExit);
 
-            customIcon = LoadIconFromResources("MacClipListener.mac_monitor_icon.ico");
-
             trayIcon = new NotifyIcon()
             {
-                Icon = customIcon,
+                Icon = Resources.mac_monitor_icon,
                 ContextMenuStrip = trayMenu,
                 Text = "MAC Address Monitor",
                 Visible = true
@@ -141,7 +140,7 @@ namespace MACAddressMonitor
 
             try
             {
-                string clipboardText = await Task.Run(() => GetClipboardText());
+                string clipboardText = GetClipboardText();
 
                 string[] splitLines = clipboardText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bool clipboardChanged = false;
@@ -182,7 +181,7 @@ namespace MACAddressMonitor
         {
             string formattedText = string.Join(Environment.NewLine, macAddresses.Select(m => m.MacAddress));
             ignoringNextClipboardUpdate = true;
-            await Task.Run(() => SetClipboardText(formattedText));
+            SetClipboardText(formattedText);
         }
 
         private void ShowNotificationForMacs(List<MACAddress> newMacAddresses)
@@ -221,42 +220,30 @@ namespace MACAddressMonitor
         private string GetClipboardText()
         {
             string text = string.Empty;
-            var thread = new System.Threading.Thread(() =>
+            try
             {
-                try
+                if (Clipboard.ContainsText())
                 {
-                    if (Clipboard.ContainsText())
-                    {
-                        text = Clipboard.GetText();
-                    }
+                    text = Clipboard.GetText();
                 }
-                catch (Exception)
-                {
-                    // Clipboard was probably in use, we'll just return empty string
-                }
-            });
-            thread.SetApartmentState(System.Threading.ApartmentState.STA);
-            thread.Start();
-            thread.Join();
+            }
+            catch (Exception)
+            {
+                // Clipboard was probably in use, we'll just return empty string
+            }
             return text;
         }
 
         private void SetClipboardText(string text)
         {
-            var thread = new System.Threading.Thread(() =>
+            try
             {
-                try
-                {
-                    Clipboard.SetText(text);
-                }
-                catch (Exception)
-                {
-                    // Clipboard was probably in use, we'll just skip setting it
-                }
-            });
-            thread.SetApartmentState(System.Threading.ApartmentState.STA);
-            thread.Start();
-            thread.Join();
+                Clipboard.SetText(text);
+            }
+            catch (Exception)
+            {
+                // Clipboard was probably in use, we'll just skip setting it
+            }
         }
 
         private void ShowNotification(string title, string message)

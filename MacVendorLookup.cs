@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MacClipListener.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -17,37 +18,24 @@ namespace MACAddressMonitor
 
         private void LoadVendorData()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "MacClipListener.manuf.txt";  // Loading embedded manuf text file from Wireshark 
 
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            string[] lines = Resources.manuf.Split('\n');
+            foreach (string line in lines)
             {
-                if (stream == null)
-                {
-                    throw new Exception($"Resource {resourceName} not found.");
-                }
+                // Skip comments in the manuf file...
+                if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
 
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        // Skip comments in the manuf file...
-                        if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line)) continue;
+                // Try and separate by tab
+                var parts = line.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
-                        // Try and separate by tab
-                        var parts = line.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                        
-                        // Skip invalid entries in manuf file (i.e. no MAC, shortname, fullname)
-                        if (parts.Length < 3) continue;
+                // Skip invalid entries in manuf file (i.e. no MAC, shortname, fullname)
+                if (parts.Length < 3) continue;
 
-                        // Normalize the MAC address, and trim any remaining whitespace
-                        string macPrefix = NormalizeMacPrefix(parts[0].Trim());
-                        string fullName = parts[2].Trim();
+                // Normalize the MAC address, and trim any remaining whitespace
+                string macPrefix = NormalizeMacPrefix(parts[0].Trim());
+                string fullName = parts[2].Trim();
 
-                        vendorDictionary[macPrefix] = fullName;
-                    }
-                }
+                vendorDictionary[macPrefix] = fullName;
             }
         }
 
