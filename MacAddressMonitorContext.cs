@@ -18,7 +18,6 @@ namespace MACAddressMonitor
         private ClipboardMonitor clipboardMonitor;
         private MacFormat selectedFormat = MacFormat.CiscoNotation;
         private bool ignoringNextClipboardUpdate = false;
-        private Icon customIcon;
 
         private ToolStripMenuItem ciscoNotationItem;
         private ToolStripMenuItem colonSeparatedItem;
@@ -44,7 +43,10 @@ namespace MACAddressMonitor
             formatMenu.DropDownItems.Add(colonSeparatedItem);
             formatMenu.DropDownItems.Add(hyphenSeparatedItem);
 
+            ToolStripMenuItem configureNetdisco = new ToolStripMenuItem("Configure Netdisco", null, ShowNetdiscoConfigForm);
+
             trayMenu.Items.Add(formatMenu);
+            trayMenu.Items.Add(configureNetdisco);
             trayMenu.Items.Add("-"); // Separator
             trayMenu.Items.Add("Exit", null, OnExit);
 
@@ -64,6 +66,24 @@ namespace MACAddressMonitor
 
             // Show initial listening message
             ShowNotification("MAC Clip Listener", "The application has started and is listening for MAC addresses.");
+        }
+
+        private void ShowNetdiscoConfigForm(object sender, EventArgs e)
+        {
+            var configForm = new NetdiscoConfigForm();
+
+            if (configForm.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    NetdiscoConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
+                    ShowNotification("Netdisco Configuration", "Netdisco settings have been updated.");
+                }
+                catch (Exception ex)
+                {
+                    ShowNotification("Configuration Error", $"Failed to save Netdisco configuration: {ex.Message}");
+                }
+            }
         }
 
         private void TrayIcon_Click(object sender, EventArgs e)
@@ -105,7 +125,7 @@ namespace MACAddressMonitor
 
         List<MACAddress> macAddresses = new List<MACAddress>();
 
-        private async void OnClipboardUpdated()
+        private void OnClipboardUpdated()
         {
             Console.WriteLine("[DBG] OnClipboardUpdated called");
             if (ignoringNextClipboardUpdate)
