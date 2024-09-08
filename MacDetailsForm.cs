@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MacClipListener.Properties;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -15,7 +16,7 @@ namespace MACAddressMonitor
         public MacDetailsForm()
         {
             InitializeComponent();
-            SetFormIcon();
+            this.Icon = Resources.mac_monitor_icon;
             this.Resize += new EventHandler(MacDetailsForm_Resize);
             InitializeCellContextMenu();
         }
@@ -132,13 +133,13 @@ namespace MACAddressMonitor
             }
         }
 
-        private System.Windows.Forms.ListView listViewMacs;
-        private System.Windows.Forms.ColumnHeader columnMac;
-        private System.Windows.Forms.ColumnHeader columnVendor;
-        private System.Windows.Forms.ColumnHeader columnAssociatedIP;
-        private System.Windows.Forms.ColumnHeader columnSwitchIP;
-        private System.Windows.Forms.ColumnHeader columnSwitch;
-        private System.Windows.Forms.ColumnHeader columnSwitchPort;
+        private ListView listViewMacs;
+        private ColumnHeader columnMac;
+        private ColumnHeader columnVendor;
+        private ColumnHeader columnAssociatedIP;
+        private ColumnHeader columnSwitchIP;
+        private ColumnHeader columnSwitch;
+        private ColumnHeader columnSwitchPort;
 
         private int GetColumnIndexAtPoint(Point point)
         {
@@ -172,26 +173,6 @@ namespace MACAddressMonitor
                     mac.NdAssociatedSwitchport
                 });
                 listViewMacs.Items.Add(item);
-            }
-        }
-
-        private void SetFormIcon()
-        {
-            try
-            {
-                string resourceName = "MacClipListener.mac_monitor_icon.ico";
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                {
-                    if (stream != null)
-                    {
-                        this.Icon = new Icon(stream);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading icon: {ex.Message}", "Icon Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

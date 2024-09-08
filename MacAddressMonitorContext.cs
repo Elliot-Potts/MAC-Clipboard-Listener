@@ -11,7 +11,7 @@ using MacClipListener.Properties;
 
 namespace MACAddressMonitor
 {
-    public partial class MacAddressMonitorContext : ApplicationContext
+	public partial class MacAddressMonitorContext : ApplicationContext
     {
         private NotifyIcon trayIcon;
         private ContextMenuStrip trayMenu;
@@ -70,34 +70,10 @@ namespace MACAddressMonitor
         {
             if (((MouseEventArgs)e).Button == MouseButtons.Left)
             {
-                //Console.WriteLine($"DBG Length Count of MACOBJ array: {macAddresses.Count}");
                 ShowMacDetailsForm();
             }
         }
-
-        private Icon LoadIconFromResources(string resourceName)
-        {
-            // Load Icon from embedded resource
-            try
-            {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                {
-                    if (stream != null)
-                    {
-                        return new Icon(stream);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading icon: {ex.Message}", "Icon Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            // Fallback to default icon on failure
-            return SystemIcons.Application;
-        }
-
+                
         private void SetMacFormat(MacFormat format)
         {
             selectedFormat = format;
