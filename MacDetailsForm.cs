@@ -52,7 +52,7 @@ namespace MACAddressMonitor
             this.listViewMacs.TabIndex = 0;
             this.listViewMacs.UseCompatibleStateImageBehavior = false;
             this.listViewMacs.View = View.Details;
-            this.listViewMacs.MouseClick += new MouseEventHandler(this.listViewMacs_MouseClick);
+            this.listViewMacs.MouseClick += new MouseEventHandler(this.ListViewMacs_MouseClick);
             // 
             // columnMac
             // 
@@ -100,12 +100,15 @@ namespace MACAddressMonitor
         private void InitializeCellContextMenu()
         {
             cellContextMenu = new ContextMenuStrip();
-            ToolStripMenuItem copyMenuItem = new ToolStripMenuItem("Copy");
-            copyMenuItem.Click += CopyMenuItem_Click;
-            cellContextMenu.Items.Add(copyMenuItem);
+            ToolStripMenuItem copyRowItem = new ToolStripMenuItem("Copy Row");
+            ToolStripMenuItem copyCellItem = new ToolStripMenuItem("Copy Cell");
+            copyRowItem.Click += CopyRowItem_Click;
+            copyCellItem.Click += CopyMenuItem_Click;
+            cellContextMenu.Items.Add(copyRowItem);
+            cellContextMenu.Items.Add(copyCellItem);
         }
 
-        private void listViewMacs_MouseClick(object sender, MouseEventArgs e)
+        private void ListViewMacs_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -114,6 +117,22 @@ namespace MACAddressMonitor
                 {
                     cellContextMenu.Show(listViewMacs, e.Location);
                 }
+            }
+        }
+
+        private void CopyRowItem_Click(object sender, EventArgs e)
+        {
+            if (listViewMacs.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listViewMacs.SelectedItems[0];
+                string rowText = string.Empty;
+
+                foreach (ListViewItem.ListViewSubItem subItem in selectedItem.SubItems)
+                {
+                    rowText += subItem.Text + "\n";
+                }
+
+                Clipboard.SetText(rowText);
             }
         }
 
