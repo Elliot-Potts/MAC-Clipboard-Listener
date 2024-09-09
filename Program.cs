@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Net.Http;
-using System.Windows.Forms.VisualStyles;
+using System.Threading.Tasks;
 
 namespace MACAddressMonitor
 {
@@ -12,6 +11,23 @@ namespace MACAddressMonitor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // Generate API key on startup
+            Task.Run(async () =>
+            {
+                try
+                {
+                    if (NetdiscoConfigManager.IsConfigured())
+                    {
+                        await NetdiscoConfigManager.GenerateApiKey();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to generate API key: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }).Wait();
+
             Application.Run(new MacAddressMonitorContext());
         }
     }

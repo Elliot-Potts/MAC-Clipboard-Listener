@@ -2,19 +2,20 @@
 using System.IO;
 using System.Xml.Linq;
 using System.Diagnostics;
-using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace MACAddressMonitor
 {
-    // TODO - API key generation should be performed each load
     internal class NetdiscoConfigManager
     {
-        private const string API_KEY_SETTING = "NetdiscoApiKey";
+        private const string USERNAME_SETTING = "NetdiscoUsername";
+        private const string PASSWORD_SETTING = "NetdiscoPassword";
         private const string API_URL_SETTING = "NetdiscoApiUrl";
         private static readonly string ConfigFilePath;
+        private static string _apiKey;
 
         static NetdiscoConfigManager()
         {
@@ -39,9 +40,14 @@ namespace MACAddressMonitor
             config.Save(ConfigFilePath);
         }
 
-        public static string GetApiKey()
+        public static string GetUsername()
         {
-            return GetSetting(API_KEY_SETTING);
+            return GetSetting(USERNAME_SETTING);
+        }
+
+        public static string GetPassword()
+        {
+            return GetSetting(PASSWORD_SETTING);
         }
 
         public static string GetApiUrl()
@@ -49,21 +55,22 @@ namespace MACAddressMonitor
             return GetSetting(API_URL_SETTING);
         }
 
+        public static string GetApiKey()
+        {
+            return _apiKey;
+        }
+
         public static async Task SaveApiConfig(string apiUrl, string username, string password)
         {
-            string generatedApiKey = await GenerateApiKey(apiUrl, username, password);
-
-            if (string.IsNullOrEmpty(generatedApiKey))
-            {
-                throw new InvalidOperationException("Failed to generate API key");
-            }
-
-            SaveSetting(API_KEY_SETTING, generatedApiKey);
             SaveSetting(API_URL_SETTING, apiUrl);
+            SaveSetting(USERNAME_SETTING, username);
+            SaveSetting(PASSWORD_SETTING, password);
+
+            await GenerateApiKey();
 
             Debug.WriteLine($"Configuration saved to: {ConfigFilePath}");
-            Debug.WriteLine($"API Key: {generatedApiKey}");
             Debug.WriteLine($"API URL: {apiUrl}");
+            Debug.WriteLine($"Username: {username}");
         }
 
         private static string GetSetting(string key)
@@ -94,11 +101,15 @@ namespace MACAddressMonitor
         public static bool IsConfigured()
         {
             Debug.WriteLine("Running check for IsConfigured()");
-            return !string.IsNullOrEmpty(GetApiKey()) && !string.IsNullOrEmpty(GetApiUrl());
+            return !string.IsNullOrEmpty(GetUsername()) && !string.IsNullOrEmpty(GetPassword()) && !string.IsNullOrEmpty(GetApiUrl());
         }
 
-        private static async Task<string> GenerateApiKey(string apiUrl, string username, string password)
+        public static async Task GenerateApiKey()
         {
+            string apiUrl = GetApiUrl();
+            string username = GetUsername();
+            string password = GetPassword();
+
             using (var client = new HttpClient())
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, $"{apiUrl}/login");
@@ -113,14 +124,20 @@ namespace MACAddressMonitor
                     response.EnsureSuccessStatusCode();
                     string responseBody = await response.Content.ReadAsStringAsync();
 
-                    // Parse response to get API key
                     var jsonResponse = JObject.Parse(responseBody);
-                    return jsonResponse["api_key"]?.ToString();
+                    _apiKey = jsonResponse["api_key"]?.ToString();
+
+                    if (string.IsNullOrEmpty(_apiKey))
+                    {
+                        throw new Exception("API key not found in the response");
+                    }
+
+                    Debug.WriteLine($"New API key generated: {_apiKey}");
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error generating API key: {ex.Message}");
-                    return null;
+                    throw;
                 }
             }
         }

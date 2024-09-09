@@ -77,11 +77,12 @@ namespace MACAddressMonitor
                 try
                 {
                     await NetdiscoConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
-                    ShowNotification("Netdisco Configuration", "Netdisco settings have been updated.");
+                    await NetdiscoConfigManager.GenerateApiKey();
+                    ShowNotification("Netdisco Configuration", "Netdisco settings have been updated and a new API key has been generated.");
                 }
                 catch (Exception ex)
                 {
-                    ShowNotification("Configuration Error", $"Failed to save Netdisco configuration: {ex.Message}");
+                    ShowNotification("Configuration Error", $"Failed to save Netdisco configuration or generate API key: {ex.Message}");
                 }
             }
         }

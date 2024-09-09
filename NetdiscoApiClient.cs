@@ -5,32 +5,37 @@ using Newtonsoft.Json.Linq;
 
 namespace MACAddressMonitor
 {
-    // TODO - Implement /search/node API endpoint
     public class NetdiscoApiClient
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiKey;
         private readonly string _baseUrl;
 
         public NetdiscoApiClient()
         {
             _httpClient = new HttpClient();
-            _apiKey = NetdiscoConfigManager.GetApiKey();
             _baseUrl = NetdiscoConfigManager.GetApiUrl();
 
-            if (string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_baseUrl))
+            if (string.IsNullOrEmpty(_baseUrl))
             {
                 throw new InvalidOperationException("Netdisco API is not configured. Please configure Netdisco first.");
             }
-
-            _httpClient.DefaultRequestHeaders.Add("X-Auth-Token", _apiKey);
         }
 
         public async Task<NetdiscoMacDetails> GetMacDetails(string macAddress)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/api/v1/search/node?q={macAddress}");
+                string apiKey = NetdiscoConfigManager.GetApiKey();
+                if (string.IsNullOrEmpty(apiKey))
+                {
+                    throw new InvalidOperationException("API key is not available. Please ensure the application has generated an API key.");
+                }
+
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}/api/v1/search/node?q={macAddress}");
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Authorization", apiKey);
+
+                var response = await _httpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
 
