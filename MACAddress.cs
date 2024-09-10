@@ -30,7 +30,6 @@ namespace MACAddressMonitor
         {
             MacAddress = macAddress;
             Vendor = LookupVendor(macAddress);
-            GetNetdiscoDetails();
         }
 
         private string LookupVendor(string macAddress)
@@ -48,30 +47,6 @@ namespace MACAddressMonitor
                 }
             }
             return "Unknown";
-        }
-
-        private void GetNetdiscoDetails()
-        {
-            // API key stored in environment variable 'MACL_NDKEY'
-            // TODO: Implement Netdisco API call to populate Associated values
-
-            Console.WriteLine("Checking environment for 'MACL_NDKEY'");
-
-            //string getNdAPIKey = Environment.GetEnvironmentVariable("MACL_NDKEY");
-
-            //if (getNdAPIKey != null)
-            //{
-            //    Console.WriteLine($"Key found with value: {getNdAPIKey}");
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Please make sure the environment variable 'MACL_NDKEY' is set.", "NetDisco API key not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
-
-            NdAssociatedIPAddress = "Not implemented";
-            NdAssociatedSwitchHostname = "Not implemented";
-            NdAssociatedSwitchIP = "Not implemented";
-            NdAssociatedSwitchport = "Not implemented";
         }
     }
 }
