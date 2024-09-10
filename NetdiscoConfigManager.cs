@@ -17,6 +17,9 @@ namespace MACAddressMonitor
         private static readonly string ConfigFilePath;
         private static string _apiKey;
 
+        // Used to update tray button text
+        public static event Action<bool> ApiKeyChanged;
+
         static NetdiscoConfigManager()
         {
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -126,6 +129,7 @@ namespace MACAddressMonitor
 
                     var jsonResponse = JObject.Parse(responseBody);
                     _apiKey = jsonResponse["api_key"]?.ToString();
+                    ApiKeyChanged?.Invoke(!string.IsNullOrEmpty(_apiKey));
 
                     if (string.IsNullOrEmpty(_apiKey))
                     {

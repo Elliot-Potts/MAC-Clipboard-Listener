@@ -8,6 +8,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using MacClipListener.Properties;
+using System.Diagnostics;
 
 namespace MACAddressMonitor
 {
@@ -16,6 +17,7 @@ namespace MACAddressMonitor
         private NotifyIcon trayIcon;
         private ContextMenuStrip trayMenu;
         private ClipboardMonitor clipboardMonitor;
+        private ToolStripMenuItem configureNetdisco;
         private MacFormat selectedFormat = MacFormat.CiscoNotation;
         private bool ignoringNextClipboardUpdate = false;
 
@@ -28,6 +30,7 @@ namespace MACAddressMonitor
             InitializeComponent();
             clipboardMonitor = new ClipboardMonitor();
             clipboardMonitor.ClipboardUpdated += OnClipboardUpdated;
+            NetdiscoConfigManager.ApiKeyChanged += UpdateNetdiscoMenuItemText;
         }
 
         private void InitializeComponent()
@@ -43,7 +46,8 @@ namespace MACAddressMonitor
             formatMenu.DropDownItems.Add(colonSeparatedItem);
             formatMenu.DropDownItems.Add(hyphenSeparatedItem);
 
-            ToolStripMenuItem configureNetdisco = new ToolStripMenuItem("Configure Netdisco", null, ShowNetdiscoConfigForm);
+            configureNetdisco = new ToolStripMenuItem(null, null, ShowNetdiscoConfigForm);
+            configureNetdisco.Text = NetdiscoConfigManager.GetApiKey() != null ? "Configure Netdisco (C)" : "Configure Netdisco (DC)";
 
             trayMenu.Items.Add(formatMenu);
             trayMenu.Items.Add(configureNetdisco);
@@ -85,6 +89,15 @@ namespace MACAddressMonitor
                     ShowNotification("Configuration Error", $"Failed to save Netdisco configuration or generate API key: {ex.Message}");
                 }
             }
+        }
+
+        // This method updates the ToolStripMenuItem text
+        private void UpdateNetdiscoMenuItemText(bool isConnected)
+        {
+            Debug.WriteLine($"UpdateNetdiscoMenuItemText isConnected = {isConnected}");
+            configureNetdisco.Text = isConnected
+                ? "Configure Netdisco - Connected"
+                : "Configure Netdisco - Disconnected";
         }
 
         private void TrayIcon_Click(object sender, EventArgs e)

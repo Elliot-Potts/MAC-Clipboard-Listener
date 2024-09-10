@@ -24,7 +24,7 @@ namespace MACAddressMonitor
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to generate API key: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Failed to generate API key. Please check your Netdisco settings. Exception: {ex.Message}", "Netdisco Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }).Wait();
 
