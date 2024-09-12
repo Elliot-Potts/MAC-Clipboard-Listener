@@ -27,20 +27,21 @@ namespace MACAddressMonitor
             this.columnMac = new ColumnHeader();
             this.columnVendor = new ColumnHeader();
             this.columnAssociatedIP = new ColumnHeader();
-            this.columnSwitchIP = new ColumnHeader();
             this.columnSwitch = new ColumnHeader();
+            this.columnSwitchIP = new ColumnHeader();
             this.columnSwitchPort = new ColumnHeader();
             this.SuspendLayout();
             // 
             // listViewMacs
             // 
             this.listViewMacs.Columns.AddRange(new ColumnHeader[] {
-            this.columnMac,
-            this.columnVendor,
-            this.columnAssociatedIP,
-            this.columnSwitchIP,
-            this.columnSwitch,
-            this.columnSwitchPort});
+                this.columnMac,
+                this.columnVendor,
+                this.columnAssociatedIP,
+                this.columnSwitch,
+                this.columnSwitchIP,
+                this.columnSwitchPort
+            });
             this.listViewMacs.Dock = DockStyle.Fill;
             this.listViewMacs.FullRowSelect = true;
             this.listViewMacs.GridLines = true;
@@ -48,7 +49,7 @@ namespace MACAddressMonitor
             this.listViewMacs.Location = new Point(0, 0);
             this.listViewMacs.Margin = new Padding(4, 5, 4, 5);
             this.listViewMacs.Name = "listViewMacs";
-            this.listViewMacs.Size = new Size(876, 402);
+            this.listViewMacs.Size = new Size(1400, 400);
             this.listViewMacs.TabIndex = 0;
             this.listViewMacs.UseCompatibleStateImageBehavior = false;
             this.listViewMacs.View = View.Details;
@@ -69,15 +70,15 @@ namespace MACAddressMonitor
             this.columnAssociatedIP.Text = "Associated IP";
             this.columnAssociatedIP.Width = 100;
             // 
-            // columnSwitchIP
-            // 
-            this.columnSwitchIP.Text = "Switch IP";
-            this.columnSwitchIP.Width = 100;
-            // 
             // columnSwitch
             // 
             this.columnSwitch.Text = "Switch";
             this.columnSwitch.Width = 150;
+            // 
+            // columnSwitchIP
+            // 
+            this.columnSwitchIP.Text = "Switch IP";
+            this.columnSwitchIP.Width = 100;
             // 
             // columnSwitchPort
             // 
@@ -88,7 +89,7 @@ namespace MACAddressMonitor
             // 
             this.AutoScaleDimensions = new SizeF(9F, 20F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(1100, 402);
+            this.ClientSize = new Size(1400, 400);
             this.Controls.Add(this.listViewMacs);
             this.Margin = new Padding(4, 5, 4, 5);
             this.Name = "MacDetailsForm";
@@ -165,7 +166,7 @@ namespace MACAddressMonitor
             {
                 using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
                 {
-                    sw.WriteLine("MAC Address,Vendor,Associated IP,Switch IP,Switch,Switch Port");
+                    sw.WriteLine("MAC Address,Vendor,Associated IP,Switch,Switch IP,Switch Port");
                     foreach (ListViewItem item in listViewMacs.Items)
                     {
                         sw.WriteLine(string.Join(",", new string[] {
@@ -185,8 +186,8 @@ namespace MACAddressMonitor
         private ColumnHeader columnMac;
         private ColumnHeader columnVendor;
         private ColumnHeader columnAssociatedIP;
-        private ColumnHeader columnSwitchIP;
         private ColumnHeader columnSwitch;
+        private ColumnHeader columnSwitchIP;
         private ColumnHeader columnSwitchPort;
 
         private int GetColumnIndexAtPoint(Point point)
@@ -216,8 +217,8 @@ namespace MACAddressMonitor
                     mac.MacAddress,
                     mac.Vendor,
                     mac.NdAssociatedIPAddress,
-                    mac.NdAssociatedSwitchIP,
                     mac.NdAssociatedSwitchHostname,
+                    mac.NdAssociatedSwitchIP,
                     mac.NdAssociatedSwitchport
                 });
                 listViewMacs.Items.Add(item);

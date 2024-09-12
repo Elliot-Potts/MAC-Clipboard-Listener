@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -23,6 +25,7 @@ namespace MACAddressMonitor
 
         public async Task<NetdiscoMacDetails> GetMacDetails(string macAddress)
         {
+            Debug.WriteLine("Inside GetMacDetails() for:  " + macAddress);
             try
             {
                 string apiKey = NetdiscoConfigManager.GetApiKey();
@@ -41,12 +44,15 @@ namespace MACAddressMonitor
 
                 var json = JObject.Parse(content);
 
+                //Debug.WriteLine("DBG Netdisco JSON Response: " + json.ToString());
+
                 return new NetdiscoMacDetails
                 {
-                    IpAddress = json["ip"]?.ToString(),
-                    SwitchHostname = json["device"]?["name"]?.ToString(),
-                    SwitchIp = json["device"]?["ip"]?.ToString(),
-                    Switchport = json["port"]?["port"]?.ToString()
+                    IpAddress = json["ips"]?.FirstOrDefault()?["ip"]?.ToString(),
+                    IpRouter = json["ips"]?.FirstOrDefault()?["router_ip"]?.ToString(),
+                    SwitchHostname = json["sightings"]?.FirstOrDefault()?["device"]?["name"]?.ToString(),
+                    SwitchIp = json["sightings"]?.FirstOrDefault()?["switch"]?.ToString(),
+                    Switchport = json["sightings"]?.FirstOrDefault()?["port"]?.ToString()
                 };
             }
             catch (Exception ex)
@@ -60,6 +66,7 @@ namespace MACAddressMonitor
     public class NetdiscoMacDetails
     {
         public string IpAddress { get; set; }
+        public string IpRouter { get; set; }
         public string SwitchHostname { get; set; }
         public string SwitchIp { get; set; }
         public string Switchport { get; set; }

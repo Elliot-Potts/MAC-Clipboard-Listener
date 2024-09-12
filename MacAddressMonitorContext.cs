@@ -139,7 +139,7 @@ namespace MACAddressMonitor
 
         List<MACAddress> macAddresses = new List<MACAddress>();
 
-        private void OnClipboardUpdated()
+        private async void OnClipboardUpdated()
         {
             Console.WriteLine("[DBG] OnClipboardUpdated called");
             if (ignoringNextClipboardUpdate)
@@ -168,6 +168,7 @@ namespace MACAddressMonitor
                             clipboardChanged = true;
                         }
                         var macAddressObject = new MACAddress(formattedMac);
+                        await macAddressObject.FetchNetdiscoDetails();
                         macAddresses.Add(macAddressObject);
                     }
                 }
