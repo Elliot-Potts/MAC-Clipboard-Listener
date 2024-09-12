@@ -3,12 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace MACAddressMonitor
 {
-    // TODO - add sorting on fields
     public partial class MacDetailsForm : Form
     {
         private ContextMenuStrip cellContextMenu;
@@ -19,6 +17,7 @@ namespace MACAddressMonitor
             this.Icon = Resources.mac_monitor_icon;
             this.Resize += new EventHandler(MacDetailsForm_Resize);
             InitializeCellContextMenu();
+            ResizeColumns(); // Adjust columns to full width on form load
         }
 
         private void InitializeComponent()
@@ -96,6 +95,8 @@ namespace MACAddressMonitor
             this.Text = "MAC Address Details";
             this.ResumeLayout(false);
 
+            // Adjust columns to utilize full width on form load
+            ResizeColumns();
         }
 
         private void InitializeCellContextMenu()
@@ -233,7 +234,7 @@ namespace MACAddressMonitor
         private void ResizeColumns()
         {
             int totalWidth = listViewMacs.ClientSize.Width;
-            int[] columnWidths = { 15, 20, 15, 20, 15, 10 }; // Percentage widths
+            int[] columnWidths = { 15, 20, 15, 20, 15, 15 }; // Adjusted percentage widths
 
             for (int i = 0; i < listViewMacs.Columns.Count; i++)
             {
