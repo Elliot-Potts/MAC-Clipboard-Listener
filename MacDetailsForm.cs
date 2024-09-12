@@ -159,9 +159,12 @@ namespace MACAddressMonitor
 
         private void ExportCSV_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "CSV files|*.csv";
-            saveFileDialog.Title = "Export MAC Address Data";
+            // TODO - Need to handle commas better here to accommodate CSV export
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "CSV files|*.csv",
+                Title = "Export MAC Address Data"
+            };
             saveFileDialog.ShowDialog();
             if (saveFileDialog.FileName != "")
             {
@@ -172,7 +175,7 @@ namespace MACAddressMonitor
                     {
                         sw.WriteLine(string.Join(",", new string[] {
                             item.SubItems[0].Text,
-                            item.SubItems[1].Text,
+                            item.SubItems[1].Text.Replace(",", ""),
                             item.SubItems[2].Text,
                             item.SubItems[3].Text,
                             item.SubItems[4].Text,

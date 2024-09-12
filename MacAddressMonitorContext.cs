@@ -47,7 +47,7 @@ namespace MACAddressMonitor
             formatMenu.DropDownItems.Add(hyphenSeparatedItem);
 
             configureNetdisco = new ToolStripMenuItem(null, null, ShowNetdiscoConfigForm);
-            configureNetdisco.Text = NetdiscoConfigManager.GetApiKey() != null ? "Configure Netdisco (C)" : "Configure Netdisco (DC)";
+            configureNetdisco.Text = NetdiscoConfigManager.GetApiKey() != null ? "Configure Netdisco (Connected)" : "Configure Netdisco (Disconnected)";
 
             trayMenu.Items.Add(formatMenu);
             trayMenu.Items.Add(configureNetdisco);
