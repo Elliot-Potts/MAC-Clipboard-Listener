@@ -11,15 +11,14 @@ namespace MACAddressMonitor
 
         static MACAddress()
         {
+            vendorLookup = new MacVendorLookup();
             try
             {
-                vendorLookup = new MacVendorLookup();
                 netdiscoClient = new NetdiscoApiClient();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error initializing MacVendorLookup or NetdiscoApiClient: {ex.Message}");
-                vendorLookup = null;
                 netdiscoClient = null;
             }
         }
