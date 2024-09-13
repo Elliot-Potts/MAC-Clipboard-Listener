@@ -82,7 +82,7 @@ namespace MACAddressMonitor
                 {
                     await NetdiscoConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
                     await NetdiscoConfigManager.GenerateApiKey();
-                    ShowNotification("Netdisco Configuration", "Netdisco settings have been updated and a new API key has been generated.");
+                    ShowNotification("Netdisco Configuration", "Netdisco settings have been saved and an API key has been generated. Please restart the application.");
                 }
                 catch (Exception ex)
                 {
@@ -96,8 +96,8 @@ namespace MACAddressMonitor
         {
             Debug.WriteLine($"UpdateNetdiscoMenuItemText isConnected = {isConnected}");
             configureNetdisco.Text = isConnected
-                ? "Configure Netdisco - Connected"
-                : "Configure Netdisco - Disconnected";
+                ? "Configure Netdisco (Connected)"
+                : "Configure Netdisco (Disconnected)";
         }
 
         private void TrayIcon_Click(object sender, EventArgs e)
