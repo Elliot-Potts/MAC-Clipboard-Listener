@@ -216,7 +216,7 @@
     <Compile Include="NetdiscoConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NetdiscoConfigManager.cs" />
+    <Compile Include="ConfigManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MacDetailsForm.resx">

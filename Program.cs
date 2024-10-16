@@ -17,9 +17,9 @@ namespace MACAddressMonitor
             {
                 try
                 {
-                    if (NetdiscoConfigManager.IsConfigured())
+                    if (ConfigManager.IsConfigured())
                     {
-                        await NetdiscoConfigManager.GenerateApiKey();
+                        await ConfigManager.GenerateApiKey();
                     }
                 }
                 catch (Exception ex)

@@ -61,8 +61,8 @@ namespace MACAddressMonitor
 
         private void LoadExistingConfig()
         {
-            string existingUrl = NetdiscoConfigManager.GetApiUrl();
-            string existingKey = NetdiscoConfigManager.GetApiKey();
+            string existingUrl = ConfigManager.GetApiUrl();
+            string existingKey = ConfigManager.GetApiKey();
 
             if (!string.IsNullOrEmpty(existingUrl))
             {

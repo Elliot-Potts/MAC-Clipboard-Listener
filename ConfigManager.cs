@@ -9,18 +9,20 @@ using Newtonsoft.Json.Linq;
 
 namespace MACAddressMonitor
 {
-    internal class NetdiscoConfigManager
+    internal class ConfigManager
     {
         private const string USERNAME_SETTING = "NetdiscoUsername";
         private const string PASSWORD_SETTING = "NetdiscoPassword";
         private const string API_URL_SETTING = "NetdiscoApiUrl";
+        private const string MAC_FORMAT_SETTING = "MacFormat";
         private static readonly string ConfigFilePath;
         private static string _apiKey;
 
         // Used to update tray button text
         public static event Action<bool> ApiKeyChanged;
 
-        static NetdiscoConfigManager()
+        // Create the path and initial XML config file
+        static ConfigManager()
         {
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string appFolder = Path.Combine(appDataPath, "MACAddressMonitor");
@@ -33,6 +35,7 @@ namespace MACAddressMonitor
             }
         }
 
+        // Create an empty XML configuration file
         private static void CreateEmptyConfigFile()
         {
             var config = new XDocument(

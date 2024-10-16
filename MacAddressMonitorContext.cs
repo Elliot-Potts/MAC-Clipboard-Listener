@@ -30,7 +30,7 @@ namespace MACAddressMonitor
             InitializeComponent();
             clipboardMonitor = new ClipboardMonitor();
             clipboardMonitor.ClipboardUpdated += OnClipboardUpdated;
-            NetdiscoConfigManager.ApiKeyChanged += UpdateNetdiscoMenuItemText;
+            ConfigManager.ApiKeyChanged += UpdateNetdiscoMenuItemText;
         }
 
         private void InitializeComponent()
@@ -47,7 +47,7 @@ namespace MACAddressMonitor
             formatMenu.DropDownItems.Add(hyphenSeparatedItem);
 
             configureNetdisco = new ToolStripMenuItem(null, null, ShowNetdiscoConfigForm);
-            configureNetdisco.Text = NetdiscoConfigManager.GetApiKey() != null ? "Configure Netdisco (Connected)" : "Configure Netdisco (Disconnected)";
+            configureNetdisco.Text = ConfigManager.GetApiKey() != null ? "Configure Netdisco (Connected)" : "Configure Netdisco (Disconnected)";
 
             trayMenu.Items.Add(formatMenu);
             trayMenu.Items.Add(configureNetdisco);
@@ -80,8 +80,8 @@ namespace MACAddressMonitor
             {
                 try
                 {
-                    await NetdiscoConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
-                    await NetdiscoConfigManager.GenerateApiKey();
+                    await ConfigManager.SaveApiConfig(configForm.NetdiscoUrl, configForm.Username, configForm.Password);
+                    await ConfigManager.GenerateApiKey();
                     ShowNotification("Netdisco Configuration", "Netdisco settings have been saved and an API key has been generated. Please restart the application.");
                 }
                 catch (Exception ex)

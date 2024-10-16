@@ -15,7 +15,7 @@ namespace MACAddressMonitor
         public NetdiscoApiClient()
         {
             _httpClient = new HttpClient();
-            _baseUrl = NetdiscoConfigManager.GetApiUrl();
+            _baseUrl = ConfigManager.GetApiUrl();
 
             if (string.IsNullOrEmpty(_baseUrl))
             {
@@ -28,7 +28,7 @@ namespace MACAddressMonitor
             Debug.WriteLine("Inside GetMacDetails() for:  " + macAddress);
             try
             {
-                string apiKey = NetdiscoConfigManager.GetApiKey();
+                string apiKey = ConfigManager.GetApiKey();
                 if (string.IsNullOrEmpty(apiKey))
                 {
                     throw new InvalidOperationException("API key is not available. Please ensure the application has generated an API key.");
