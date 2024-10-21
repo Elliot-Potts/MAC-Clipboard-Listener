@@ -31,6 +31,7 @@ namespace MACAddressMonitor
             clipboardMonitor = new ClipboardMonitor();
             clipboardMonitor.ClipboardUpdated += OnClipboardUpdated;
             ConfigManager.ApiKeyChanged += UpdateNetdiscoMenuItemText;
+            LoadSavedMacFormat();
         }
 
         private void InitializeComponent()
@@ -70,6 +71,15 @@ namespace MACAddressMonitor
 
             // Show initial listening message
             ShowNotification("MAC Clip Listener", "The application has started and is listening for MAC addresses.");
+        }
+
+        private void LoadSavedMacFormat()
+        {
+            string savedFormat = ConfigManager.GetMacFormat();
+            if (!string.IsNullOrEmpty(savedFormat) && Enum.TryParse(savedFormat, out MacFormat format))
+            {
+                SetMacFormat(format);
+            }
         }
 
         private async void ShowNetdiscoConfigForm(object sender, EventArgs e)
@@ -112,6 +122,7 @@ namespace MACAddressMonitor
         {
             selectedFormat = format;
             UpdateFormatMenuCheckMarks();
+            ConfigManager.SaveMacFormat(format.ToString());
             ShowNotification("MAC Format Updated", $"Selected format: {format}");
         }
 

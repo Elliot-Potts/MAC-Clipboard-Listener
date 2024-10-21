@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using System.Net.NetworkInformation;
+using System.Windows.Forms;
 
 namespace MACAddressMonitor
 {
@@ -64,6 +66,16 @@ namespace MACAddressMonitor
         public static string GetApiKey()
         {
             return _apiKey;
+        }
+
+        public static string GetMacFormat()
+        {
+            return GetSetting(MAC_FORMAT_SETTING);
+        }
+
+        public static void SaveMacFormat(string format)
+        {
+            SaveSetting(MAC_FORMAT_SETTING, format);
         }
 
         public static async Task SaveApiConfig(string apiUrl, string username, string password)
