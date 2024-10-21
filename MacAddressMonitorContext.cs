@@ -150,6 +150,7 @@ namespace MACAddressMonitor
 
         List<MACAddress> macAddresses = new List<MACAddress>();
 
+        private MacDetailsForm macDetailsForm;
         private async void OnClipboardUpdated()
         {
             Console.WriteLine("[DBG] OnClipboardUpdated called");
@@ -188,6 +189,16 @@ namespace MACAddressMonitor
                 {
                     UpdateClipboardWithFormattedMacs(macAddresses);
                     ShowNotificationForMacs(macAddresses);
+
+                    // Update the MacDetailsForm if it's open
+                    if (macDetailsForm != null && !macDetailsForm.IsDisposed)
+                    {
+                        // Use Invoke to update UI from a different thread
+                        macDetailsForm.Invoke((MethodInvoker)delegate
+                        {
+                            macDetailsForm.PopulateList(macAddresses);
+                        });
+                    }
                 }
 
                 // Clear macAddresses yet again - now removed for dialog/form
@@ -211,9 +222,6 @@ namespace MACAddressMonitor
             string notificationText = string.Join(Environment.NewLine,
                 newMacAddresses.Select(m => $"{m.MacAddress} - {m.Vendor}"));
 
-            //ShowNotification("MAC Addresses Processed",
-            //    $"Processed {newMacAddresses.Count} MAC address(es):{Environment.NewLine}{notificationText}");
-
             trayIcon.BalloonTipClicked += TrayIcon_BalloonTipClicked;
             trayIcon.ShowBalloonTip(3000, "MAC Addresses Processed",
                 $"Processed {newMacAddresses.Count} MAC address(es). Click for details.", ToolTipIcon.Info);
@@ -229,9 +237,23 @@ namespace MACAddressMonitor
         {
             if (macAddresses.Any())
             {
-                var detailsForm = new MacDetailsForm();
-                detailsForm.PopulateList(macAddresses);
-                detailsForm.Show();
+                // Updated to check if a window is already open (fixes multiple windows opening)
+                if (macDetailsForm == null || macDetailsForm.IsDisposed)
+                {
+                    macDetailsForm = new MacDetailsForm();
+                    // Set/ensure macDetailsForm to null on closed
+                    macDetailsForm.FormClosed += (s, args) => macDetailsForm = null;
+                }
+
+                if (!macDetailsForm.Visible)
+                {
+                    macDetailsForm.PopulateList(macAddresses);
+                    macDetailsForm.Show();
+                }
+                else
+                {
+                    macDetailsForm.BringToFront();
+                }
             }
             else
             {

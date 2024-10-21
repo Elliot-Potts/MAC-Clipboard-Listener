@@ -192,7 +192,6 @@ namespace MACAddressMonitor
 
         private void ExportCSV_Click(object sender, EventArgs e)
         {
-            // TODO - Need to handle commas better here to accommodate CSV export
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "CSV files|*.csv",
