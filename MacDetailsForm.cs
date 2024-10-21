@@ -1,6 +1,7 @@
 ﻿using MacClipListener.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -105,12 +106,15 @@ namespace MACAddressMonitor
             ToolStripMenuItem copyRowItem = new ToolStripMenuItem("Copy Row");
             ToolStripMenuItem copyCellItem = new ToolStripMenuItem("Copy Cell");
             ToolStripMenuItem exportRecordsItem = new ToolStripMenuItem("Export to CSV");
+            ToolStripMenuItem connectSwitch = new ToolStripMenuItem("Connect with PuTTY");
             copyRowItem.Click += CopyRowItem_Click;
             copyCellItem.Click += CopyMenuItem_Click;
             exportRecordsItem.Click += ExportCSV_Click;
+            connectSwitch.Click += ConnectSwitch_Click;
             cellContextMenu.Items.Add(copyRowItem);
             cellContextMenu.Items.Add(copyCellItem);
             cellContextMenu.Items.Add(exportRecordsItem);
+            cellContextMenu.Items.Add(connectSwitch);
         }
 
         private void ListViewMacs_MouseClick(object sender, MouseEventArgs e)
@@ -154,6 +158,35 @@ namespace MACAddressMonitor
                     string cellValue = selectedItem.SubItems[columnIndex].Text;
                     Clipboard.SetText(cellValue);
                 }
+            }
+        }
+
+        private void ConnectSwitch_Click(object sender, EventArgs e)
+        {
+            if (listViewMacs.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listViewMacs.SelectedItems[0];
+                string switchIP = selectedItem.SubItems[4].Text; // Switch IP is in the 5th column (index 4)
+
+                if (!string.IsNullOrWhiteSpace(switchIP))
+                {
+                    try
+                    {
+                        Process.Start("putty.exe", $"-ssh {switchIP}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error launching PuTTY: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No switch IP address available for the selected item.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a MAC address entry first.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
