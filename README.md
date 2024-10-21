@@ -2,13 +2,21 @@
 
 A very simple C# application to automatically re-format copied MAC addresses, perform vendor/OUI lookups and display switchport/link details integrating the [Netdisco API](https://netdisco.org/).
 
-![Format Options](docs/img_context.png)
+## Features
 
-![Notification](docs/img_notification.png)
+<b>MAC address re-formatting</b>
 
-## TODO
+Convert between MAC address formats automatically.
 
-- Implement Netdisco MAC lookup API into details form
-- Implement Netdisco key regeneration on error: not authorized
-  - Update README / Docs
+
+<img src="docs/img_context_2.png" alt="Format Options" width="450">
+
+<b>OUI lookup and Netdisco support</b>
+
+Support for connection to a Netdisco server to identify connected network device information from copied MAC addresses.
+
+
+<img src="docs/img_notification_2.png" alt="Notification" width="300">
+
+<img src="docs/img_netdisco_support2.png" alt="Details Form" width="4600">
 
