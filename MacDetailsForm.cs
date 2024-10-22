@@ -106,15 +106,18 @@ namespace MACAddressMonitor
             ToolStripMenuItem copyRowItem = new ToolStripMenuItem("Copy Row");
             ToolStripMenuItem copyCellItem = new ToolStripMenuItem("Copy Cell");
             ToolStripMenuItem exportRecordsItem = new ToolStripMenuItem("Export to CSV");
-            ToolStripMenuItem connectSwitch = new ToolStripMenuItem("Connect with PuTTY");
+            ToolStripMenuItem connectPuTTY = new ToolStripMenuItem("SSH with PuTTY");
+            ToolStripMenuItem connectSecureCRT = new ToolStripMenuItem("SSH with SecureCRT");
             copyRowItem.Click += CopyRowItem_Click;
             copyCellItem.Click += CopyMenuItem_Click;
             exportRecordsItem.Click += ExportCSV_Click;
-            connectSwitch.Click += ConnectSwitch_Click;
+            connectPuTTY.Click += ConnectPutty_Click;
+            connectSecureCRT.Click += ConnectSecureCrt_Click;
             cellContextMenu.Items.Add(copyRowItem);
             cellContextMenu.Items.Add(copyCellItem);
             cellContextMenu.Items.Add(exportRecordsItem);
-            cellContextMenu.Items.Add(connectSwitch);
+            cellContextMenu.Items.Add(connectPuTTY);
+            cellContextMenu.Items.Add(connectSecureCRT);
         }
 
         private void ListViewMacs_MouseClick(object sender, MouseEventArgs e)
@@ -161,7 +164,7 @@ namespace MACAddressMonitor
             }
         }
 
-        private void ConnectSwitch_Click(object sender, EventArgs e)
+        private void ConnectPutty_Click(object sender, EventArgs e)
         {
             if (listViewMacs.SelectedItems.Count > 0)
             {
@@ -176,7 +179,36 @@ namespace MACAddressMonitor
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error launching PuTTY: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Please make sure PuTTY is in your Path. Error launching PuTTY: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No switch IP address available for the selected item.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a MAC address entry first.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void ConnectSecureCrt_Click(object sender, EventArgs e)
+        {
+            if (listViewMacs.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listViewMacs.SelectedItems[0];
+                string switchIP = selectedItem.SubItems[4].Text; // Switch IP is in the 5th column (index 4)
+
+                if (!string.IsNullOrWhiteSpace(switchIP))
+                {
+                    try
+                    {
+                        Process.Start("securecrt.exe", $"{switchIP}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Please make sure SecureCRT is in your Path. Error launching SecureCRT: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 else
