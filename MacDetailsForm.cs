@@ -10,6 +10,10 @@ namespace MACAddressMonitor
 {
     public partial class MacDetailsForm : Form
     {
+        // Event delegate and event for handling MAC address removal
+        public delegate void MacAddressDeletedEventHandler(string macAddress);
+        public event MacAddressDeletedEventHandler MacAddressDeleted;
+
         private ContextMenuStrip cellContextMenu;
 
         public MacDetailsForm()
@@ -105,17 +109,20 @@ namespace MACAddressMonitor
             cellContextMenu = new ContextMenuStrip();
             ToolStripMenuItem copyRowItem = new ToolStripMenuItem("Copy Row");
             ToolStripMenuItem copyCellItem = new ToolStripMenuItem("Copy Cell");
+            ToolStripMenuItem deletedMacAddress = new ToolStripMenuItem("Delete MAC Address");
             ToolStripMenuItem exportRecordsItem = new ToolStripMenuItem("Export to CSV");
             ToolStripMenuItem connectPuTTY = new ToolStripMenuItem("SSH with PuTTY");
             ToolStripMenuItem connectSecureCRT = new ToolStripMenuItem("SSH with SecureCRT");
             copyRowItem.Click += CopyRowItem_Click;
             copyCellItem.Click += CopyMenuItem_Click;
+            deletedMacAddress.Click += DeleteMacAddress_Click;
             exportRecordsItem.Click += ExportCSV_Click;
             connectPuTTY.Click += ConnectPutty_Click;
             connectSecureCRT.Click += ConnectSecureCrt_Click;
             cellContextMenu.Items.Add(copyRowItem);
             cellContextMenu.Items.Add(copyCellItem);
             cellContextMenu.Items.Add(exportRecordsItem);
+            cellContextMenu.Items.Add(deletedMacAddress);
             cellContextMenu.Items.Add(connectPuTTY);
             cellContextMenu.Items.Add(connectSecureCRT);
         }
@@ -128,6 +135,24 @@ namespace MACAddressMonitor
                 if (hitTest.Item != null)
                 {
                     cellContextMenu.Show(listViewMacs, e.Location);
+                }
+            }
+        }
+
+        private void DeleteMacAddress_Click(object sender, EventArgs e)
+        {
+            if (listViewMacs.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listViewMacs.SelectedItems[0];
+                string macAddress = selectedItem.SubItems[0].Text;
+
+                if (MessageBox.Show($"Are you sure you want to delete the MAC address {macAddress}?", "Delete MAC Address", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    // Delete MAC address from list view
+                    listViewMacs.Items.Remove(selectedItem);
+
+                    // Notify the parent form that a MAC address was deleted
+                    MacAddressDeleted?.Invoke(macAddress);
                 }
             }
         }

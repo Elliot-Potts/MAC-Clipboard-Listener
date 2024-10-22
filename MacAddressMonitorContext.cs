@@ -253,6 +253,9 @@ namespace MACAddressMonitor
                     macDetailsForm = new MacDetailsForm();
                     // Ensure macDetailsForm is set null on exit.
                     macDetailsForm.FormClosed += (s, args) => macDetailsForm = null;
+
+                    // Subscribe to the MacAddressDeleted event
+                    macDetailsForm.MacAddressDeleted += OnMacAddressDeleted;
                 }
 
                 macDetailsForm.PopulateList(macAddresses.Values.ToList());
@@ -269,6 +272,15 @@ namespace MACAddressMonitor
             else
             {
                 MessageBox.Show("No MAC addresses have been processed yet.", "MAC Address Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void OnMacAddressDeleted(string macAddress)
+        {
+            if (macAddresses.ContainsKey(macAddress))
+            {
+                macAddresses.Remove(macAddress);
+                Debug.WriteLine($"Removed MAC address from dict: {macAddress}");
             }
         }
 
