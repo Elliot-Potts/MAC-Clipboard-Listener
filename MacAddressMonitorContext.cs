@@ -50,9 +50,15 @@ namespace MACAddressMonitor
             configureNetdisco = new ToolStripMenuItem(null, null, ShowNetdiscoConfigForm);
             configureNetdisco.Text = ConfigManager.GetApiKey() != null ? "Configure Netdisco (Connected)" : "Configure Netdisco (Disconnected)";
 
+
             trayMenu.Items.Add(formatMenu);
             trayMenu.Items.Add(configureNetdisco);
             trayMenu.Items.Add("-"); // Separator
+
+            // Add a "Clear All" option to the tray menu
+            ToolStripMenuItem clearAllItem = new ToolStripMenuItem("Clear All MAC Addresses");
+            clearAllItem.Click += (s, e) => ClearMacAddresses();
+            trayMenu.Items.Add(clearAllItem);
             trayMenu.Items.Add("Exit", null, OnExit);
 
             trayIcon = new NotifyIcon()
@@ -148,7 +154,8 @@ namespace MACAddressMonitor
             Application.Exit();
         }
 
-        List<MACAddress> macAddresses = new List<MACAddress>();
+        //List<MACAddress> macAddresses = new List<MACAddress>();
+        private Dictionary<string, MACAddress> macAddresses = new Dictionary<string, MACAddress>();
 
         private MacDetailsForm macDetailsForm;
         private async void OnClipboardUpdated()
@@ -163,12 +170,13 @@ namespace MACAddressMonitor
             try
             {
                 string clipboardText = GetClipboardText();
-
                 string[] splitLines = clipboardText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bool clipboardChanged = false;
 
+                List<MACAddress> newMacAddresses = new List<MACAddress>();
+
                 // Empty the existing MAC addresses list
-                macAddresses.Clear();
+                //macAddresses.Clear();
 
                 foreach (string line in splitLines)
                 {
@@ -179,16 +187,22 @@ namespace MACAddressMonitor
                         {
                             clipboardChanged = true;
                         }
-                        var macAddressObject = new MACAddress(formattedMac);
-                        await macAddressObject.FetchNetdiscoDetails();
-                        macAddresses.Add(macAddressObject);
+
+                        // Only process if it's a new MAC address
+                        if (!macAddresses.ContainsKey(formattedMac))
+                        {
+                            var macAddressObject = new MACAddress(formattedMac);
+                            await macAddressObject.FetchNetdiscoDetails();
+                            macAddresses[formattedMac] = macAddressObject;
+                            newMacAddresses.Add(macAddressObject);
+                        }
                     }
                 }
 
-                if (macAddresses.Any() && clipboardChanged)
+                if (newMacAddresses.Any() && clipboardChanged)
                 {
-                    UpdateClipboardWithFormattedMacs(macAddresses);
-                    ShowNotificationForMacs(macAddresses);
+                    UpdateClipboardWithFormattedMacs(newMacAddresses);
+                    ShowNotificationForMacs(newMacAddresses);
 
                     // Update the MacDetailsForm if it's open
                     if (macDetailsForm != null && !macDetailsForm.IsDisposed)
@@ -196,13 +210,10 @@ namespace MACAddressMonitor
                         // Use Invoke to update UI from a different thread
                         macDetailsForm.Invoke((MethodInvoker)delegate
                         {
-                            macDetailsForm.PopulateList(macAddresses);
+                            macDetailsForm.PopulateList(macAddresses.Values.ToList());
                         });
                     }
                 }
-
-                // Clear macAddresses yet again - now removed for dialog/form
-                //macAddresses.Clear();
             }
             catch (Exception ex)
             {
@@ -237,17 +248,17 @@ namespace MACAddressMonitor
         {
             if (macAddresses.Any())
             {
-                // Updated to check if a window is already open (fixes multiple windows opening)
                 if (macDetailsForm == null || macDetailsForm.IsDisposed)
                 {
                     macDetailsForm = new MacDetailsForm();
-                    // Set/ensure macDetailsForm to null on closed
+                    // Ensure macDetailsForm is set null on exit.
                     macDetailsForm.FormClosed += (s, args) => macDetailsForm = null;
                 }
 
+                macDetailsForm.PopulateList(macAddresses.Values.ToList());
+
                 if (!macDetailsForm.Visible)
                 {
-                    macDetailsForm.PopulateList(macAddresses);
                     macDetailsForm.Show();
                 }
                 else
@@ -258,6 +269,19 @@ namespace MACAddressMonitor
             else
             {
                 MessageBox.Show("No MAC addresses have been processed yet.", "MAC Address Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        // Method to clear the MAC addresses list
+        private void ClearMacAddresses()
+        {
+            macAddresses.Clear();
+            if (macDetailsForm != null && !macDetailsForm.IsDisposed)
+            {
+                macDetailsForm.Invoke((MethodInvoker)delegate
+                {
+                    macDetailsForm.PopulateList(new List<MACAddress>());
+                });
             }
         }
 
